@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja de Camisas de Esportes</title>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --gray: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: #f1f5f9; color: var(--dark); padding-bottom: 80px; }
+
+    header { background: var(--dark); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; sticky: top; }
+    header h1 { font-size: 1.4rem; font-weight: 700; }
+    .cart-btn { background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .card img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; }
+    .card h3 { font-size: 1.1rem; color: var(--dark); }
+    .price { font-size: 1.25rem; font-weight: bold; color: var(--primary-dark); }
+
+    .custom-group { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem; }
+    .custom-group input, .custom-group select { padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+    .custom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+    .btn-add { background: var(--dark); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: auto; }
+    .btn-add:hover { background: #1e293b; }
+
+    /* Modal Carrinho */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 1rem; z-index: 100; }
+    .modal-content { background: white; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 1.5rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
+    .cart-item { border-bottom: 1px solid #f1f5f9; padding: 0.75rem 0; font-size: 0.9rem; }
+    .checkout-form { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+    .checkout-form input, .checkout-form select { padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .btn-send { background: #25d366; color: white; border: none; padding: 0.9rem; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⚽ Camisas Esporte Club</h1>
+    <button class="cart-btn" onclick="toggleCart()">🛒 Carrinho (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <div class="container">
+    <div class="grid" id="products-grid"></div>
+  </div>
+
+  <!-- Modal do Carrinho -->
+  <div class="modal" id="cart-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Seu Carrinho</h2>
+        <button onclick="toggleCart()" style="border:none; background:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div id="cart-items"></div>
+      <div style="margin-top: 1rem; font-weight: bold; font-size: 1.1rem; text-align: right;">
+        Total: R$ <span id="cart-total">0,00</span>
+      </div>
+
+      <div class="checkout-form">
+        <h3>Dados de Entrega</h3>
+        <input type="text" id="cust-name" placeholder="Seu Nome Completo" required>
+        <input type="tel" id="cust-phone" placeholder="Seu Telefone / WhatsApp" required>
+        <input type="text" id="cust-address" placeholder="Endereço Completo de Entrega" required>
+        <select id="cust-payment">
+          <option value="Pix">Pagamento via Pix</option>
+          <option value="Cartão de Crédito">Cartão de Crédito (na entrega)</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+        <button class="btn-send" onclick="checkoutWhatsApp()">Enviar Pedido no WhatsApp 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Catálogo de Produtos
+    const products = [
+      {
+        id: "flu-home-2026",
+        name: "Camisa Fluminense I 2026/27",
+        price: 299.90,
+        image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=600&q=80",
+        sizes: ["P", "M", "G", "GG"],
+        patches: ["Nenhum", "Libertadores", "Brasileirão"]
+      },
+      {
+        id: "brasil-retro-70",
+        name: "Camisa Brasil Retrô 1970",
+        price: 249.90,
+        image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=80",
+        sizes: ["P", "M", "G", "GG", "XGG"],
+        patches: ["Nenhum", "Tricampeão 1970"]
+      },
+      {
+        id: "real-madrid-2026",
+        name: "Camisa Real Madrid Home 2026",
+        price: 319.90,
+        image: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=80",
+        sizes: ["P", "M", "G", "GG"],
+        patches: ["Nenhum", "Champions League"]
+      }
+    ];
+
+    let cart = [];
+    const LOJA_WHATSAPP = "5522999957625"; // Substitua pelo seu número (DDD + número)
+
+    // 2. Renderizar Produtos
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = products.map(p => `
+        <div class="card">
+          <img src="${p.image}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <div class="price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
+          
+          <div class="custom-group">
+            <label>Tamanho:</label>
+            <select id="size-${p.id}">
+              ${p.sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="custom-group">
+            <label>Personalização (Opcional):</label>
+            <div class="custom-row">
+              <input type="text" id="name-${p.id}" placeholder="Nome (Ex: SILVA)">
+              <input type="number" id="num-${p.id}" placeholder="Nº (Ex: 10)">
+            </div>
+          </div>
+
+          <div class="custom-group">
+            <label>Patch de Manga:</label>
+            <select id="patch-${p.id}">
+              ${p.patches.map(patch => `<option value="${patch}">${patch}</option>`).join('')}
+            </select>
+          </div>
+
+          <button class="btn-add" onclick="addToCart('${p.id}')">Adicionar ao Carrinho</button>
+        </div>
+      `).join('');
+    }
+
+    // 3. Adicionar ao Carrinho
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      const size = document.getElementById(`size-${productId}`).value;
+      const customName = document.getElementById(`name-${productId}`).value.trim();
+      const customNum = document.getElementById(`num-${productId}`).value.trim();
+      const patch = document.getElementById(`patch-${productId}`).value;
+
+      cart.push({
+        ...product,
+        size,
+        customization: { name: customName, number: customNum },
+        patch: patch !== "Nenhum" ? patch : null
+      });
+
+      updateCartUI();
+      toggleCart();
+    }
+
+    // 4. Atualizar UI do Carrinho
+    function updateCartUI() {
+      document.getElementById('cart-count').innerText = cart.length;
+      const cartItemsContainer = document.getElementById('cart-items');
+      
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p style="padding: 1rem 0; color: var(--gray);">Seu carrinho está vazio.</p>';
+        document.getElementById('cart-total').innerText = '0,00';
+        return;
+      }
+
+      const total = cart.reduce((acc, item) => acc + item.price, 0);
+      document.getElementById('cart-total').innerText = total.toFixed(2).replace('.', ',');
+
+      cartItemsContainer.innerHTML = cart.map((item, idx) => `
+        <div class="cart-item">
+          <div style="display:flex; justify-between; align-items:center;">
+            <strong>${item.name}</strong>
+            <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; cursor:pointer;">Remover</button>
+          </div>
+          <div>Tamanho: ${item.size} | Preço: R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+          ${item.customization.name || item.customization.number ? `<div>Estampa: ${item.customization.name || 'Sem nome'} (#${item.customization.number || '0'})</div>` : ''}
+          ${item.patch ? `<div>Patch: ${item.patch}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function toggleCart() {
+      const modal = document.getElementById('cart-modal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    // 5. Checkout via WhatsApp
+    function checkoutWhatsApp() {
+      if (cart.length === 0) return alert('Seu carrinho está vazio!');
+      
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const address = document.getElementById('cust-address').value.trim();
+      const payment = document.getElementById('cust-payment').value;
+
+      if (!name || !phone || !address) {
+        return alert('Por favor, preencha todos os campos de entrega.');
+      }
+
+      const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+      let msg = `*NOVO PEDIDO DE CAMISAS* ⚽👕\n`;
+      msg += `-----------------------------------\n\n`;
+      
+      cart.forEach((item, i) => {
+        msg += `${i + 1}. *${item.name}*\n`;
+        msg += `   • Tamanho: ${item.size}\n`;
+        if (item.customization.name || item.customization.number) {
+          msg += `   • Estampa: ${item.customization.name.toUpperCase()} (#${item.customization.number})\n`;
+        }
+        if (item.patch) msg += `   • Patch: ${item.patch}\n`;
+        msg += `   • Valor: R$ ${item.price.toFixed(2).replace('.', ',')}\n\n`;
+      });
+
+      msg += `-----------------------------------\n`;
+      msg += `*TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+      msg += `-----------------------------------\n\n`;
+      msg += `*DADOS DE ENTREGA:*\n`;
+      msg += `👤 *Nome:* ${name}\n`;
+      msg += `📞 *WhatsApp:* ${phone}\n`;
+      msg += `📍 *Endereço:* ${address}\n`;
+      msg += `💳 *Pagamento:* ${payment}\n`;
+
+      const url = `https://wa.me/${LOJA_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    // Inicializar
+    renderProducts();
+  </script>
+</body>
+</html>
