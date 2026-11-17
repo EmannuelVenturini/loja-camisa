@@ -103,7 +103,7 @@
     const products = [
       {
         id: "nba-vice-city-7",
-        name: "Regata NBA Vice City - Antetokounmpo #7",
+        name: "Regata NBA Miami Heat Vice City - Cactus Jack / Nike",
         price: 249.90,
         image: "images (3).jpeg",
         sizes: ["P", "M", "G", "GG", "XGG"]
@@ -161,7 +161,7 @@
 
       cartItemsContainer.innerHTML = cart.map((item, idx) => `
         <div class="cart-item">
-          <div style="display:flex; justify-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
             <strong>${item.name}</strong>
             <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; cursor:pointer;">Remover</button>
           </div>
