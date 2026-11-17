@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja do @Daniel_orocha</title>
+  <title>Loja do Daniel_orocha</title>
   <style>
     :root {
       --primary: #10b981;
@@ -40,8 +40,10 @@
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
     .cart-item { border-bottom: 1px solid #f1f5f9; padding: 0.75rem 0; font-size: 0.9rem; }
     .checkout-form { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
-    .checkout-form input, .checkout-form select { padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .checkout-form label { font-size: 0.9rem; font-weight: bold; margin-top: 0.3rem; }
+    .checkout-form input, .checkout-form select { padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
     .btn-send { background: #25d366; color: white; border: none; padding: 0.9rem; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+    .btn-send:hover { background: #1eb956; }
   </style>
 </head>
 <body>
@@ -68,22 +70,36 @@
       </div>
 
       <div class="checkout-form">
-        <h3>Dados de Entrega</h3>
-        <input type="text" id="cust-name" placeholder="Seu Nome Completo" required>
-        <input type="tel" id="cust-phone" placeholder="Seu Telefone / WhatsApp" required>
-        <input type="text" id="cust-address" placeholder="Endereço Completo de Entrega" required>
-        <select id="cust-payment">
-          <option value="Pix">Pagamento via Pix</option>
-          <option value="Cartão de Crédito">Cartão de Crédito (na entrega)</option>
-          <option value="Dinheiro">Dinheiro</option>
+        <h3>Dados de Entrega & Pagamento</h3>
+        
+        <label for="cust-name">Nome Completo:</label>
+        <input type="text" id="cust-name" placeholder="Digite seu nome" required>
+        
+        <label for="cust-phone">WhatsApp / Telefone:</label>
+        <input type="tel" id="cust-phone" placeholder="(22) 99999-9999" required>
+        
+        <label for="cust-address">Endereço de Entrega:</label>
+        <input type="text" id="cust-address" placeholder="Rua, número, bairro e cidade" required>
+        
+        <label for="cust-payment">Forma de Pagamento:</label>
+        <select id="cust-payment" onchange="toggleTroco(this.value)">
+          <option value="Pix">⚡ Pix</option>
+          <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+          <option value="Cartão de Débito">💳 Cartão de Débito</option>
+          <option value="Dinheiro">💵 Dinheiro (na entrega)</option>
         </select>
+
+        <div id="troco-box" style="display: none; flex-direction: column; gap: 0.3rem;">
+          <label for="cust-troco">Precisa de troco para quanto?</label>
+          <input type="text" id="cust-troco" placeholder="Ex: Troco para R$ 300,00 ou Não preciso">
+        </div>
+
         <button class="btn-send" onclick="checkoutWhatsApp()">Enviar Pedido no WhatsApp 🚀</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Catálogo simplificado
     const products = [
       {
         id: "nba-vice-city-7",
@@ -97,7 +113,6 @@
     let cart = [];
     const LOJA_WHATSAPP = "5522992264706";
 
-    // Renderizar Produtos
     function renderProducts() {
       const grid = document.getElementById('products-grid');
       grid.innerHTML = products.map(p => `
@@ -118,7 +133,6 @@
       `).join('');
     }
 
-    // Adicionar ao Carrinho
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       const size = document.getElementById(`size-${productId}`).value;
@@ -132,7 +146,6 @@
       toggleCart();
     }
 
-    // Atualizar UI do Carrinho
     function updateCartUI() {
       document.getElementById('cart-count').innerText = cart.length;
       const cartItemsContainer = document.getElementById('cart-items');
@@ -148,7 +161,7 @@
 
       cartItemsContainer.innerHTML = cart.map((item, idx) => `
         <div class="cart-item">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; justify-between; align-items:center;">
             <strong>${item.name}</strong>
             <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; cursor:pointer;">Remover</button>
           </div>
@@ -167,7 +180,11 @@
       modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    // Checkout via WhatsApp
+    function toggleTroco(val) {
+      const trocoBox = document.getElementById('troco-box');
+      trocoBox.style.display = (val === 'Dinheiro') ? 'flex' : 'none';
+    }
+
     function checkoutWhatsApp() {
       if (cart.length === 0) return alert('Seu carrinho está vazio!');
       
@@ -175,6 +192,7 @@
       const phone = document.getElementById('cust-phone').value.trim();
       const address = document.getElementById('cust-address').value.trim();
       const payment = document.getElementById('cust-payment').value;
+      const troco = document.getElementById('cust-troco').value.trim();
 
       if (!name || !phone || !address) {
         return alert('Por favor, preencha todos os campos de entrega.');
@@ -182,7 +200,7 @@
 
       const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-      let msg = `*NOVO PEDIDO DE CAMISAS* 🏀👕\n`;
+      let msg = `*NOVO PEDIDO - LOJA DO DANIEL_OROCHA* 🏀👕\n`;
       msg += `-----------------------------------\n\n`;
       
       cart.forEach((item, i) => {
@@ -194,11 +212,14 @@
       msg += `-----------------------------------\n`;
       msg += `*TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
       msg += `-----------------------------------\n\n`;
-      msg += `*DADOS DE ENTREGA:*\n`;
+      msg += `*DADOS DE ENTREGA & PAGAMENTO:*\n`;
       msg += `👤 *Nome:* ${name}\n`;
       msg += `📞 *WhatsApp:* ${phone}\n`;
       msg += `📍 *Endereço:* ${address}\n`;
-      msg += `💳 *Pagamento:* ${payment}\n`;
+      msg += `💳 *Forma de Pagamento:* ${payment}\n`;
+      if (payment === 'Dinheiro' && troco) {
+        msg += `💵 *Observação de Troco:* ${troco}\n`;
+      }
 
       const url = `https://wa.me/${LOJA_WHATSAPP}?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
