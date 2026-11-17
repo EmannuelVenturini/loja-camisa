@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja de Camisas de Esportes</title>
+  <title>Loja do Daniel_orocha</title>
   <style>
     :root {
       --primary: #10b981;
@@ -24,7 +24,7 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
     .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
-    .card img { width: 100%; height: 260px; object-fit: cover; border-radius: 8px; }
+    .card img { width: 100%; height: 320px; object-fit: cover; border-radius: 8px; }
     .card h3 { font-size: 1.1rem; color: var(--dark); }
     .price { font-size: 1.25rem; font-weight: bold; color: var(--primary-dark); }
 
@@ -48,7 +48,7 @@
 <body>
 
   <header>
-    <h1>⚽ Camisas Esporte Club</h1>
+    <h1>🏀 Loja do Daniel_orocha</h1>
     <button class="cart-btn" onclick="toggleCart()">🛒 Carrinho (<span id="cart-count">0</span>)</button>
   </header>
 
@@ -84,7 +84,7 @@
   </div>
 
   <script>
-    // Catálogo de Produtos Atualizado
+    // Catálogo com apenas a regata da NBA
     const products = [
       {
         id: "nba-vice-city-7",
@@ -93,30 +93,6 @@
         image: "images (3).jpeg",
         sizes: ["P", "M", "G", "GG", "XGG"],
         patches: ["Nenhum", "Edição Especial Vice", "Patch NBA"]
-      },
-      {
-        id: "flu-home-2026",
-        name: "Camisa Fluminense I 2026/27",
-        price: 299.90,
-        image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=600&q=80",
-        sizes: ["P", "M", "G", "GG"],
-        patches: ["Nenhum", "Libertadores", "Brasileirão"]
-      },
-      {
-        id: "brasil-retro-70",
-        name: "Camisa Brasil Retrô 1970",
-        price: 249.90,
-        image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=80",
-        sizes: ["P", "M", "G", "GG", "XGG"],
-        patches: ["Nenhum", "Tricampeão 1970"]
-      },
-      {
-        id: "real-madrid-2026",
-        name: "Camisa Real Madrid Home 2026",
-        price: 319.90,
-        image: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=80",
-        sizes: ["P", "M", "G", "GG"],
-        patches: ["Nenhum", "Champions League"]
       }
     ];
 
@@ -194,7 +170,7 @@
 
       cartItemsContainer.innerHTML = cart.map((item, idx) => `
         <div class="cart-item">
-          <div style="display:flex; justify-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
             <strong>${item.name}</strong>
             <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; cursor:pointer;">Remover</button>
           </div>
@@ -230,7 +206,7 @@
 
       const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-      let msg = `*NOVO PEDIDO DE CAMISAS* ⚽👕\n`;
+      let msg = `*NOVO PEDIDO DE CAMISAS* 🏀👕\n`;
       msg += `-----------------------------------\n\n`;
       
       cart.forEach((item, i) => {
