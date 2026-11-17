@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja do Daniel_orocha</title>
+  <title>Loja do @Daniel_orocha</title>
   <style>
     :root {
       --primary: #10b981;
@@ -29,8 +29,7 @@
     .price { font-size: 1.25rem; font-weight: bold; color: var(--primary-dark); }
 
     .custom-group { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem; }
-    .custom-group input, .custom-group select { padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
-    .custom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .custom-group select { padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
 
     .btn-add { background: var(--dark); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: auto; }
     .btn-add:hover { background: #1e293b; }
@@ -84,20 +83,19 @@
   </div>
 
   <script>
-    // Catálogo com apenas a regata da NBA
+    // Catálogo simplificado
     const products = [
       {
         id: "nba-vice-city-7",
         name: "Regata NBA Vice City - Antetokounmpo #7",
         price: 249.90,
         image: "images (3).jpeg",
-        sizes: ["P", "M", "G", "GG", "XGG"],
-        patches: ["Nenhum", "Edição Especial Vice", "Patch NBA"]
+        sizes: ["P", "M", "G", "GG", "XGG"]
       }
     ];
 
     let cart = [];
-    const LOJA_WHATSAPP = "5522999957625";
+    const LOJA_WHATSAPP = "5522992264706";
 
     // Renderizar Produtos
     function renderProducts() {
@@ -115,21 +113,6 @@
             </select>
           </div>
 
-          <div class="custom-group">
-            <label>Personalização (Opcional):</label>
-            <div class="custom-row">
-              <input type="text" id="name-${p.id}" placeholder="Nome (Ex: SILVA)">
-              <input type="number" id="num-${p.id}" placeholder="Nº (Ex: 10)">
-            </div>
-          </div>
-
-          <div class="custom-group">
-            <label>Patch / Edição:</label>
-            <select id="patch-${p.id}">
-              ${p.patches.map(patch => `<option value="${patch}">${patch}</option>`).join('')}
-            </select>
-          </div>
-
           <button class="btn-add" onclick="addToCart('${p.id}')">Adicionar ao Carrinho</button>
         </div>
       `).join('');
@@ -139,15 +122,10 @@
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       const size = document.getElementById(`size-${productId}`).value;
-      const customName = document.getElementById(`name-${productId}`).value.trim();
-      const customNum = document.getElementById(`num-${productId}`).value.trim();
-      const patch = document.getElementById(`patch-${productId}`).value;
 
       cart.push({
         ...product,
-        size,
-        customization: { name: customName, number: customNum },
-        patch: patch !== "Nenhum" ? patch : null
+        size
       });
 
       updateCartUI();
@@ -175,8 +153,6 @@
             <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; cursor:pointer;">Remover</button>
           </div>
           <div>Tamanho: ${item.size} | Preço: R$ ${item.price.toFixed(2).replace('.', ',')}</div>
-          ${item.customization.name || item.customization.number ? `<div>Estampa: ${item.customization.name || 'Sem nome'} (#${item.customization.number || '0'})</div>` : ''}
-          ${item.patch ? `<div>Patch: ${item.patch}</div>` : ''}
         </div>
       `).join('');
     }
@@ -212,10 +188,6 @@
       cart.forEach((item, i) => {
         msg += `${i + 1}. *${item.name}*\n`;
         msg += `   • Tamanho: ${item.size}\n`;
-        if (item.customization.name || item.customization.number) {
-          msg += `   • Estampa: ${item.customization.name.toUpperCase()} (#${item.customization.number})\n`;
-        }
-        if (item.patch) msg += `   • Patch: ${item.patch}\n`;
         msg += `   • Valor: R$ ${item.price.toFixed(2).replace('.', ',')}\n\n`;
       });
 
